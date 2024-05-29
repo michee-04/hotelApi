@@ -13,8 +13,9 @@ const port = ":5000"
 
 func main() {
 	r := mux.NewRouter()
-	// routes.RegisterHotel(r)
 	routes.RegisterUser(r)
+	routes.RegisterHotel(r)
+	routes.RegisterRoom(r)
 	http.Handle("/", r)
 
 	fmt.Printf("le serveur fonctionne sur http://localhost%s", port)

@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var db *gorm.DB
+var DBS *gorm.DB
 
 type User struct {
 	gorm.Model
@@ -21,33 +21,33 @@ type User struct {
 
 func init(){
 	config.Connect()
-	db = config.GetDB()
-	db.AutoMigrate(&User{})
+	DBS = config.GetDB()
+	DBS.AutoMigrate(&User{})
 }
 
 func (u *User) CreateUser() *User{
 	// u.Id = fmt.Sprintf("%x", u.Id)
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	u.Password = string(hashedPassword) 
-	db.NewRecord(u)
-	db.Create(&u)
+	DBS.NewRecord(u)
+	DBS.Create(&u)
 	return u
 }
 
 func GetAllUser() []User{
 	var Users []User
-	db.Find(&Users)
+	DBS.Find(&Users)
 	return Users
 }
 
 func GetBookById(Id string) (*User, *gorm.DB){
 	var GetUser User
-	db := db.Where("ID=?", Id).Find(&GetUser)
+	db := DBS.Where("ID=?", Id).Find(&GetUser)
 	return &GetUser, db
 }
 
 func DeleteBookId(Id string) User{
 	var user User
-	db.Where("ID=?", Id).Delete(user)
+	DBS.Where("ID=?", Id).Delete(user)
 	return user
 }
