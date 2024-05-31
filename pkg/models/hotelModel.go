@@ -21,7 +21,7 @@ type Hotel struct {
 func init() {
 	config.Connect()
 	DBS = config.GetDB()
-	// DBS.DropTableIfExists(&Hotel{})
+	DBS.DropTableIfExists(&Hotel{})
 	DBS.AutoMigrate(&Hotel{})
 }
 

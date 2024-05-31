@@ -22,7 +22,7 @@ type Room struct {
 func init() {
 	config.Connect()
 	DBS = config.GetDB()
-	// DBS.DropTableIfExists(&Room{})
+	DBS.DropTableIfExists(&Room{})
 	DBS.AutoMigrate(&Room{})
 }
 

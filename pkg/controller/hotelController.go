@@ -48,41 +48,41 @@ func GetHotelById(w http.ResponseWriter, r *http.Request) {
 
 
 func UpdateHotel(w http.ResponseWriter, r *http.Request) {
-	hotelUpdate := models.Hotel{}
-	utils.ParseBody(r, hotelUpdate)
 	hotel := mux.Vars(r)
 	hotelId := hotel["hotelId"]
 	Id, err := strconv.ParseInt(hotelId, 0, 0)
-	if err != nil{
-		fmt.Println("Error while parsing UpdateHotel")
+	if err != nil {
+			fmt.Println("Error while parsing UpdateHotel")
 	}
 
+	hotelUpdate := &models.Hotel{}
+	utils.ParseBody(r, hotelUpdate)
+
 	hotelDetails, db := models.GetHotelById(Id)
+
 	if hotelUpdate.Title != "" {
-		hotelDetails.Title = hotelUpdate.Title
+			hotelDetails.Title = hotelUpdate.Title
 	}
 	if hotelUpdate.Image != "" {
-		hotelDetails.Image = hotelUpdate.Image
+			hotelDetails.Image = hotelUpdate.Image
 	}
 	if hotelUpdate.Description != "" {
-		hotelDetails.Description = hotelUpdate.Description
+			hotelDetails.Description = hotelUpdate.Description
 	}
 	if hotelUpdate.Localisation != "" {
-		hotelDetails.Localisation = hotelUpdate.Localisation
+			hotelDetails.Localisation = hotelUpdate.Localisation
 	}
 	if hotelUpdate.City != "" {
-		hotelDetails.City = hotelUpdate.City
+			hotelDetails.City = hotelUpdate.City
 	}
 	if hotelUpdate.State != "" {
-		hotelDetails.State = hotelUpdate.State
-	}
-	if hotelUpdate.Title != "" {
-		hotelDetails.Title = hotelUpdate.Title
+			hotelDetails.State = hotelUpdate.State
 	}
 
 	db.Save(&hotelDetails)
+
 	res, _ := json.Marshal(hotelDetails)
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
@@ -90,15 +90,16 @@ func UpdateHotel(w http.ResponseWriter, r *http.Request) {
 
 func DeleteHotel(w http.ResponseWriter, r *http.Request) {
 	hotel := mux.Vars(r)
-	hotelId := hotel["hotelid"]
+	hotelId := hotel["hotelId"]
 	Id, err := strconv.ParseInt(hotelId, 0, 0)
 	if err != nil {
-		fmt.Println("Error while parsing DeleteHotel")
+			fmt.Println("Error while parsing DeleteHotel")
 	}
 
-	hotels := models.DeleteHotelId(Id)
-	res, _ := json.Marshal(hotels)
-	w.Header().Set("content-type", "application/json")
+	deletedHotel := models.DeleteHotelId(Id)
+
+	res, _ := json.Marshal(deletedHotel)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
