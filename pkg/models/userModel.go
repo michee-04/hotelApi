@@ -22,6 +22,7 @@ type User struct {
 func init(){
 	config.Connect()
 	DBS = config.GetDB()
+	DBS.DropTableIfExists(&User{})
 	DBS.AutoMigrate(&User{})
 }
 
@@ -40,13 +41,13 @@ func GetAllUser() []User{
 	return Users
 }
 
-func GetBookById(Id string) (*User, *gorm.DB){
+func GetUserById(Id int64) (*User, *gorm.DB){
 	var GetUser User
 	db := DBS.Where("ID=?", Id).Find(&GetUser)
 	return &GetUser, db
 }
 
-func DeleteBookId(Id string) User{
+func DeleteUserId(Id int64) User{
 	var user User
 	DBS.Where("ID=?", Id).Delete(user)
 	return user

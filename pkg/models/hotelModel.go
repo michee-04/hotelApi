@@ -7,44 +7,44 @@ import (
 
 type Hotel struct {
 	gorm.Model
-	Title string `json:"title"`
-	Description string `json:"description"`
-	Image string `json:"image"`
-	Country string `json:"country"`
-	State string `json:"state"`
-	City string `json:"city"`
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	Image        string `json:"image"`
+	Country      string `json:"country"`
+	State        string `json:"state"`
+	City         string `json:"city"`
 	Localisation string `json:"localisation"`
-	Restaurant bool `json:"restaurant"`
-
-	Rooms []Room
+	Restaurant   bool   `json:"restaurant"`
+	Rooms        []Room `gorm:"foreignKey:HotelId"`
 }
 
-func init(){
+func init() {
 	config.Connect()
 	DBS = config.GetDB()
+	// DBS.DropTableIfExists(&Hotel{})
 	DBS.AutoMigrate(&Hotel{})
 }
 
-func (h *Hotel) CreateHotel() *Hotel{
+func (h *Hotel) CreateHotel() *Hotel {
 	DBS.NewRecord(h)
 	DBS.Create(&h)
 	return h
 }
 
-func GetAllHotel() []Hotel{
+func GetAllHotel() []Hotel {
 	var Hotels []Hotel
-	DBS.Find(&Hotels)
+	DBS.Preload("Rooms").Find(&Hotels)
 	return Hotels
 }
 
-func GetHotelById(Id int64) (*Hotel, *gorm.DB){
+func GetHotelById(Id int64) (*Hotel, *gorm.DB) {
 	var getHotel Hotel
-	db := DBS.Where("ID=?", Id).Find(&getHotel)
+	db := DBS.Preload("Rooms").Where("ID = ?", Id).Find(&getHotel)
 	return &getHotel, db
 }
 
-func DeleteHotelId(Id int64) Hotel{
+func DeleteHotelId(Id int64) Hotel {
 	var hotel Hotel
-	DBS.Where("ID=?", Id).Delete(hotel)
+	DBS.Where("ID = ?", Id).Delete(&hotel)
 	return hotel
 }
