@@ -2,9 +2,7 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/michee/pkg/models"
@@ -35,11 +33,7 @@ func GetHotel(w http.ResponseWriter, r *http.Request) {
 func GetHotelById(w http.ResponseWriter, r *http.Request) {
 	hotel := mux.Vars(r)
 	hotelId := hotel["hotelId"]
-	Id, err :=strconv.ParseInt(hotelId, 0, 0)
-	if err != nil{
-		fmt.Println("Error while parsing GetHotelById")
-	}
-	hotelDetails,_ := models.GetHotelById(Id)
+	hotelDetails,_ := models.GetHotelById(hotelId)
 	res, _ := json.Marshal(hotelDetails)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -50,15 +44,10 @@ func GetHotelById(w http.ResponseWriter, r *http.Request) {
 func UpdateHotel(w http.ResponseWriter, r *http.Request) {
 	hotel := mux.Vars(r)
 	hotelId := hotel["hotelId"]
-	Id, err := strconv.ParseInt(hotelId, 0, 0)
-	if err != nil {
-			fmt.Println("Error while parsing UpdateHotel")
-	}
-
 	hotelUpdate := &models.Hotel{}
 	utils.ParseBody(r, hotelUpdate)
 
-	hotelDetails, db := models.GetHotelById(Id)
+	hotelDetails, db := models.GetHotelById(hotelId)
 
 	if hotelUpdate.Title != "" {
 			hotelDetails.Title = hotelUpdate.Title
@@ -91,12 +80,7 @@ func UpdateHotel(w http.ResponseWriter, r *http.Request) {
 func DeleteHotel(w http.ResponseWriter, r *http.Request) {
 	hotel := mux.Vars(r)
 	hotelId := hotel["hotelId"]
-	Id, err := strconv.ParseInt(hotelId, 0, 0)
-	if err != nil {
-			fmt.Println("Error while parsing DeleteHotel")
-	}
-
-	deletedHotel := models.DeleteHotelId(Id)
+	deletedHotel := models.DeleteHotelId(hotelId)
 
 	res, _ := json.Marshal(deletedHotel)
 	w.Header().Set("Content-Type", "application/json")

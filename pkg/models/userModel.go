@@ -3,6 +3,9 @@ package models
 import (
 	// "fmt"
 
+	"time"
+
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/michee/pkg/config"
 	"golang.org/x/crypto/bcrypt"
@@ -11,12 +14,16 @@ import (
 var DBS *gorm.DB
 
 type User struct {
-	gorm.Model
-	// Id string `gorm:"primary_key;type:varchar(255)" json:"id"`
+	// gorm.Model
+	ID        string `gorm:"primary_key"`
 	Name string `json:"name"`
 	Username string `json:"username"`
 	Email string `json:"email"`
 	Password string `json:"password"`
+	CreatedAt time.Time 
+	UpdatedAt time.Time  
+	DeletedAt *time.Time
+	Hotel        []Hotel `gorm:"foreignKey:UserID"`
 }
 
 func init(){
@@ -24,6 +31,11 @@ func init(){
 	DBS = config.GetDB()
 	DBS.DropTableIfExists(&User{})
 	DBS.AutoMigrate(&User{})
+}
+
+func (user *User) BeforeCreate(scope *gorm.Scope) error {
+	id := uuid.New().String()
+	return scope.SetColumn("ID", id)
 }
 
 func (u *User) CreateUser() *User{
@@ -37,17 +49,17 @@ func (u *User) CreateUser() *User{
 
 func GetAllUser() []User{
 	var Users []User
-	DBS.Find(&Users)
+	DBS.Preload("Hotel").Find(&Users)
 	return Users
 }
 
-func GetUserById(Id int64) (*User, *gorm.DB){
+func GetUserById(Id string) (*User, *gorm.DB){
 	var GetUser User
-	db := DBS.Where("ID=?", Id).Find(&GetUser)
+	db := DBS.Preload("Hotel").Where("ID=?", Id).Find(&GetUser)
 	return &GetUser, db
 }
 
-func DeleteUserId(Id int64) User{
+func DeleteUserId(Id string) User{
 	var user User
 	DBS.Where("ID=?", Id).Delete(user)
 	return user

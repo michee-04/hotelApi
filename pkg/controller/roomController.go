@@ -2,9 +2,8 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/michee/pkg/models"
@@ -33,11 +32,7 @@ func GetRoom(w http.ResponseWriter, r *http.Request) {
 func GetRoomById(w http.ResponseWriter, r *http.Request) {
 	room := mux.Vars(r)
 	roomId := room["roomId"]
-	Id, err := strconv.ParseInt(roomId, 0, 0)
-	if err != nil {
-		fmt.Println("Error while parsing")
-	}
-	roomDetails, _ := models.GetRoomById(Id)
+	roomDetails, _ := models.GetRoomById(roomId)
 	res, _ := json.Marshal(roomDetails)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -46,15 +41,10 @@ func GetRoomById(w http.ResponseWriter, r *http.Request) {
 
 func UpdateRoom(w http.ResponseWriter, r *http.Request) {
 	roomUpdate := models.Room{}
-	utils.ParseBody(r, roomUpdate)
+	utils.ParseBody(r, &roomUpdate)
 	room := mux.Vars(r)
 	roomId := room["roomId"]
-	Id, err := strconv.ParseInt(roomId, 0, 0)
-	if err != nil {
-		fmt.Println("Error while parsing")
-	}
-
-	roomDetails, db := models.GetRoomById(Id)
+	roomDetails, db := models.GetRoomById(roomId)
 	if roomUpdate.Title != "" {
 		roomDetails.Title = roomUpdate.Title
 	}
@@ -64,13 +54,12 @@ func UpdateRoom(w http.ResponseWriter, r *http.Request) {
 	if roomUpdate.Description != "" {
 		roomDetails.Description = roomUpdate.Description
 	}
-	if roomUpdate.Title != "" {
-		roomDetails.Title = roomUpdate.Title
-	}
 	if roomUpdate.RoomPrice != "" {
 		roomDetails.RoomPrice = roomUpdate.RoomPrice
 	}
-
+	if roomUpdate.HotelID != "" {
+		roomDetails.HotelID = roomUpdate.HotelID
+	}
 	db.Save(&roomDetails)
 	res, _ := json.Marshal(roomDetails)
 	w.Header().Set("content-type", "application/json")
@@ -81,12 +70,7 @@ func UpdateRoom(w http.ResponseWriter, r *http.Request) {
 func DeleteRoom(w http.ResponseWriter, r *http.Request) {
 	room := mux.Vars(r)
 	roomId := room["roomId"]
-	Id, err := strconv.ParseInt(roomId, 0, 0)
-	if err != nil {
-		fmt.Println("Error while parsing")
-	}
-
-	rooms := models.DeleteRoomById(Id)
+	rooms := models.DeleteRoomById(roomId)
 	res, _ := json.Marshal(rooms)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)

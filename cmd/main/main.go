@@ -16,6 +16,7 @@ func main() {
 	routes.RegisterUser(r)
 	routes.RegisterHotel(r)
 	routes.RegisterRoom(r)
+	routes.RegisterBookings(r)
 	http.Handle("/", r)
 
 	fmt.Printf("le serveur fonctionne sur http://localhost%s", port)

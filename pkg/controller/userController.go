@@ -2,13 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/michee/pkg/models"
 	"github.com/michee/pkg/utils"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var NewUser models.User
@@ -33,11 +32,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 func GetUserById(w http.ResponseWriter, r *http.Request) {
 	users := mux.Vars(r)
 	userId := users["userId"]
-	Id, err := strconv.ParseInt(userId, 0, 0)
-	if err != nil {
-		fmt.Println("Error while parsing GetUserById")
-	}
-	userDetails, _ := models.GetUserById(Id)
+	userDetails, _ := models.GetUserById(userId)
 	res, _ := json.Marshal(userDetails)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -46,14 +41,10 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	userUpdate := models.User{}
-	utils.ParseBody(r, userUpdate)
+	utils.ParseBody(r, &userUpdate)
 	users := mux.Vars(r)
 	userId := users["userId"]
-	Id, err := strconv.ParseInt(userId, 0, 0)
-	if err != nil {
-		fmt.Println("Error while parsing UpdateUser")
-	}
-	userDetails, db := models.GetUserById(Id)
+	userDetails, db := models.GetUserById(userId)
 	if userUpdate.Name != "" {
 		userDetails.Name = userUpdate.Name
 	}
@@ -64,9 +55,9 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		userDetails.Email = userUpdate.Email
 	}
 	if userUpdate.Password != "" {
-		userDetails.Password = userUpdate.Password
+		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(userUpdate.Password), bcrypt.DefaultCost)
+		userDetails.Password = string(hashedPassword)
 	}
-
 	db.Save(&userDetails)
 	res, _ := json.Marshal(userDetails)
 	w.Header().Set("content-type", "application/json")
@@ -77,11 +68,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	users := mux.Vars(r)
 	userId := users["userId"]
-	Id, err := strconv.ParseInt(userId, 0, 0)
-	if err != nil {
-		fmt.Println("Error while parsing DeleteUser")
-	}
-	user := models.DeleteUserId(Id)
+	user := models.DeleteUserId(userId)
 	res, _ := json.Marshal(user)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
