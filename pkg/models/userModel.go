@@ -1,7 +1,6 @@
 package models
 
 import (
-	// "fmt"
 
 	"time"
 
@@ -14,7 +13,6 @@ import (
 var DBS *gorm.DB
 
 type User struct {
-	// gorm.Model
 	ID        string `gorm:"primary_key"`
 	Name string `json:"name"`
 	Username string `json:"username"`
@@ -24,6 +22,7 @@ type User struct {
 	UpdatedAt time.Time  
 	DeletedAt *time.Time
 	Hotel        []Hotel `gorm:"foreignKey:UserID"`
+	Booking        []Booking `gorm:"foreignKey:UserID"`
 }
 
 func init(){
@@ -49,13 +48,13 @@ func (u *User) CreateUser() *User{
 
 func GetAllUser() []User{
 	var Users []User
-	DBS.Preload("Hotel").Find(&Users)
+	DBS.Preload("Hotel").Preload("Booking").Find(&Users)
 	return Users
 }
 
 func GetUserById(Id string) (*User, *gorm.DB){
 	var GetUser User
-	db := DBS.Preload("Hotel").Where("ID=?", Id).Find(&GetUser)
+	db := DBS.Preload("Hotel").Preload("booking").Where("ID=?", Id).Find(&GetUser)
 	return &GetUser, db
 }
 

@@ -8,37 +8,40 @@ import (
 	"github.com/michee/pkg/config"
 )
 
-type Booking struct{
-	ID        string `gorm:"primary_key"`
-	Title        string `json:"title"`
-	Description  string `json:"description"`
-	Image        string `json:"image"`
-	Country      string `json:"country"`
-	State        string `json:"state"`
-	City         string `json:"city"`
-	Localisation string `json:"localisation"`
-	Restaurant   bool   `json:"restaurant"`
-	HotelIdB string `json:"hotelIdB"`
-	RoomId string `json:"roomId"`
-	CreatedAt time.Time 
-	UpdatedAt time.Time  
-	DeletedAt *time.Time
-	Hotel       Hotel     `gorm:"foreignKey:HotelIDB" json:"-"`
-	Rooms       Room     `gorm:"foreignKey:RoomId" json:"-"`
-}
 
+type Booking struct {
+	ID             string    `gorm:"primary_key"`
+	UserName       string    `json:"userName"`
+	UserEmail      string    `json:"userEmail"`
+	StartDate      string `json:"startDate"`
+	EndDate        string `json:"endDate"`
+	Currency       string    `json:"currency"`
+	TotalPrice     string    `json:"totalPrice"`
+	HotelIdB       string    `json:"hotelIdB"`
+	HotelOwnerId   string    `json:"hotelOwnerId"`
+	RoomId         string    `json:"roomId"`
+	PaymentStatus  bool      `json:"paymentStatus"`
+	PaymentId      string    `json:"paymentId"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      *time.Time
+	Hotel          Hotel     `gorm:"foreignKey:HotelIdB" json:"-"`
+	User           User      `gorm:"foreignKey:HotelOwnerId" json:"-"`
+	Rooms          Room      `gorm:"foreignKey:RoomId" json:"-"`
+}
 
 func init() {
 	config.Connect()
 	DBS = config.GetDB()
-	DBS.DropTableIfExists(&Room{})
-	DBS.AutoMigrate(&Room{})
+	DBS.DropTableIfExists(&Booking{})
+	DBS.AutoMigrate(&Booking{})
 }
 
 func (r *Booking) BeforeCreate(scope *gorm.Scope) error {
 	id := uuid.New().String()
-	return scope.SetColumn("RoomID", id)
+	return scope.SetColumn("ID", id) 
 }
+
 
 func (b *Booking) CreateBooking() *Booking {
 	DBS.NewRecord(b)
@@ -54,12 +57,12 @@ func GetAllBooking() []Booking {
 
 func GetBookingById(bookingId string) (*Booking, *gorm.DB) {
 	var getBooking Booking
-	db := DBS.Where("booking_id = ?", bookingId).Find(&getBooking)
+	db := DBS.Where("id = ?", bookingId).Find(&getBooking)
 	return &getBooking, db
 }
 
-func DeleteById(bookingId string) Room {
-	var booking Room
-	DBS.Where("booking_id = ?", bookingId).Delete(&booking)
+func DeleteById(bookingId string) Booking {
+	var booking Booking
+	DBS.Where("id = ?", bookingId).Delete(&booking)
 	return booking
 }
